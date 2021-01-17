@@ -13,7 +13,6 @@ public class Tablero {
 	public Tablero() {
 		super();
 		tableroArr = new Casilla[FILAS][COLUMNAS];
-
 	} 
 	
 	public boolean estaVacio() {
@@ -30,7 +29,7 @@ public class Tablero {
 	private boolean columnaVacia(int columna) {
 		boolean estado = true;
 		for (int fila=0; fila<FILAS; fila ++) {
-			if (this.tableroArr[fila][columna].estaOcupada()) {
+			if (this.tableroArr[fila][columna] != null) {
 				estado = false;
 				break;
 			}
@@ -44,7 +43,7 @@ public class Tablero {
 			if (!columnaLlena(columna)) {
 				estado = false;
 				break;
-			}
+			} 
 		}
 		return estado;
 	}
@@ -52,7 +51,7 @@ public class Tablero {
 	private boolean columnaLlena(int columna) {
 		boolean estado = true;
 		for (int fila=0; fila<FILAS; fila ++) {
-			if (!this.tableroArr[fila][columna].estaOcupada()) {
+			if (this.tableroArr[fila][columna] == null) {
 				estado = false;
 				break;
 			}
@@ -62,10 +61,29 @@ public class Tablero {
 
 	public boolean introducirFicha (int columna, Ficha ficha) throws OperationNotSupportedException {
 		int fila;
+		if(ficha == null) {
+			throw new NullPointerException("ERROR: La ficha no puede ser nula.");
+		}
 		if (columnaLlena(columna))
 			throw new OperationNotSupportedException("ERROR: Columna llena.");
 		else 
 			fila = getPrimeraFilaVacia(columna);
+		
+		if (columna < 0 || columna > COLUMNAS) {
+			throw new IllegalArgumentException("ERROR: Columna incorrecta.");
+		}
+
+		
+		
+		// PROFESOR:
+		// AQUI ME DÁ UN ERROR DE QUE NO PUEDO LLAMAR A setFicha, PORQUE DICE
+		// QUE tableroArr no puede ser NULL,,,,
+		// tableroArr es un array bidimensional que se construye con Casilla = null
+		// No puedo asignar la FICHA porque me da error de algo que debe estar null
+		tableroArr[fila][columna].setFicha(ficha);
+		
+		
+		
 		
 		if (comprobarTirada (fila, columna, ficha)) 
 			return true;
@@ -91,14 +109,13 @@ public class Tablero {
 	
 	private int getPrimeraFilaVacia(int columna) {
 		int fila;
-		for (fila=0; fila<FILAS; fila ++) {
-			if (!tableroArr[fila][columna].estaOcupada()) {
-				break;
+		boolean seguir = true;
+		for (fila=0; fila<FILAS && seguir; fila ++) {
+			//seguir = this.tableroArr[fila][columna].estaOcupada();
+			seguir = this.tableroArr[fila][columna] != null;
 			}
-		}
 		return fila;
-		
-	}
+		}
 	
 	private boolean objetivoAlcanzado (int fichasConsecutivas) {
 		if(fichasConsecutivas >= FICHAS_IGUALES_CONSECUTIVAS_NECESARIAS) {
@@ -114,19 +131,23 @@ public class Tablero {
 		Ficha color;
 		
 		for (int columna=0; columna<COLUMNAS; columna ++) {
-			if (tableroArr[fila][columna].estaOcupada()) {
-				color = tableroArr[fila][columna].getFicha();
-				if (color == Ficha.AZUL) {
-					contadorVerdeH = 0;
-					contadorAzulH ++;
-				} else {
-					contadorAzulH = 0;
-					contadorVerdeH ++;
+			if (tableroArr[fila][columna]!=null) {
+				if (tableroArr[fila][columna].estaOcupada()) {
+					if (tableroArr[fila][columna].estaOcupada()) {
+						color = tableroArr[fila][columna].getFicha();
+						if (color == Ficha.AZUL) {
+							contadorVerdeH = 0;
+							contadorAzulH ++;
+						} else {
+							contadorAzulH = 0;
+							contadorVerdeH ++;
+						}
+						
+						if (objetivoAlcanzado(contadorAzulH) || objetivoAlcanzado(contadorVerdeH)) {
+							return true;
+						}			
+					}
 				}
-				
-				if (objetivoAlcanzado(contadorAzulH) || objetivoAlcanzado(contadorVerdeH)) {
-					return true;
-				}			
 			}
 		}
 		return false;
@@ -138,19 +159,21 @@ public class Tablero {
 		Ficha color;
 		
 		for (int fila=0; fila<FILAS; fila ++) {
-			if (tableroArr[fila][columna].estaOcupada()) {
-				color = tableroArr[fila][columna].getFicha();
-				if (color == Ficha.AZUL) {
-					contadorVerdeV = 0;
-					contadorAzulV ++;
-				} else {
-					contadorAzulV = 0;
-					contadorVerdeV ++;
+			if (tableroArr[fila][columna]!=null) {
+				if (tableroArr[fila][columna].estaOcupada()) {
+					color = tableroArr[fila][columna].getFicha();
+					if (color == Ficha.AZUL) {
+						contadorVerdeV = 0;
+						contadorAzulV ++;
+					} else {
+						contadorAzulV = 0;
+						contadorVerdeV ++;
+					}
+					
+					if (objetivoAlcanzado(contadorAzulV) || objetivoAlcanzado(contadorVerdeV)) {
+						return true;
+					}			
 				}
-				
-				if (objetivoAlcanzado(contadorAzulV) || objetivoAlcanzado(contadorVerdeV)) {
-					return true;
-				}			
 			}
 		}
 		return false;
@@ -163,18 +186,20 @@ public class Tablero {
 		int contador = 0;
 		int colCnt = colInicial;
 		for (int filaCnt = filaInicial; filaCnt<FILAS; filaCnt++) {
-			if(ficha == tableroArr[filaCnt][colCnt].getFicha()) {
-				contador++;
-			} else {
-				contador = 0;
-			}
-			if (objetivoAlcanzado(contador)) {
-				return true;
-			}
-			if (colCnt<COLUMNAS) {
-				colCnt ++;
-			} else {
-				break;
+			if (tableroArr[filaCnt][colCnt]!=null) {
+				if(ficha == tableroArr[filaCnt][colCnt].getFicha()) {
+					contador++;
+				} else {
+					contador = 0;
+				}
+				if (objetivoAlcanzado(contador)) {
+					return true;
+				}
+				if (colCnt<COLUMNAS) {
+					colCnt ++;
+				} else {
+					break;
+				}
 			}
 		}
 		return false;
@@ -187,18 +212,20 @@ public class Tablero {
 		int contador = 0;
 		int colCnt = colInicial;
 		for (int filaCnt = filaInicial; filaCnt<FILAS; filaCnt++) {
-			if(ficha == tableroArr[filaCnt][colCnt].getFicha()) {
-				contador++;
-			} else {
-				contador = 0;
-			}
-			if (objetivoAlcanzado(contador)) {
-				return true;
-			}
-			if (colCnt<COLUMNAS) {
-				colCnt --;
-			} else {
-				break;
+			if (tableroArr[filaCnt][colCnt]!=null) {
+				if(ficha == tableroArr[filaCnt][colCnt].getFicha()) {
+					contador++;
+				} else {
+					contador = 0;
+				}
+				if (objetivoAlcanzado(contador)) {
+					return true;
+				}
+				if (colCnt<COLUMNAS) {
+					colCnt --;
+				} else {
+					break;
+				}
 			}
 		}
 		return false;
