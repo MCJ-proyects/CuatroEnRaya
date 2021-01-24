@@ -6,7 +6,7 @@ import org.iesalandalus.programacion.utilidades.Entrada;
 
 
 public class Consola {
-.
+	
 	private Consola() {
 		super();
 	}
