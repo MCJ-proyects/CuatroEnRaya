@@ -13,6 +13,11 @@ public class Tablero {
 	public Tablero() {
 		super();
 		tableroArr = new Casilla[FILAS][COLUMNAS];
+		for (int i = 0; i < FILAS; i++) {
+			for (int j = 0; j < COLUMNAS; j++) {
+				tableroArr [i][j] = new Casilla();
+			}
+		}
 	} 
 	
 	public boolean estaVacio() {
@@ -29,7 +34,7 @@ public class Tablero {
 	private boolean columnaVacia(int columna) {
 		boolean estado = true;
 		for (int fila=0; fila<FILAS; fila ++) {
-			if (this.tableroArr[fila][columna] != null) {
+			if (this.tableroArr[fila][columna].getFicha() != null) {
 				estado = false;
 				break;
 			}
@@ -51,7 +56,7 @@ public class Tablero {
 	private boolean columnaLlena(int columna) {
 		boolean estado = true;
 		for (int fila=0; fila<FILAS; fila ++) {
-			if (this.tableroArr[fila][columna] == null) {
+			if (this.tableroArr[fila][columna].getFicha() == null) {
 				estado = false;
 				break;
 			}
@@ -73,17 +78,7 @@ public class Tablero {
 			throw new IllegalArgumentException("ERROR: Columna incorrecta.");
 		}
 
-		
-		
-		// PROFESOR:
-		// AQUI ME DÁ UN ERROR DE QUE NO PUEDO LLAMAR A setFicha, PORQUE DICE
-		// QUE tableroArr no puede ser NULL,,,,
-		// tableroArr es un array bidimensional que se construye con Casilla = null
-		// No puedo asignar la FICHA porque me da error de algo que debe estar null
-		tableroArr[fila][columna].setFicha(ficha);
-		
-		
-		
+		tableroArr[fila][columna].setFicha(ficha);		
 		
 		if (comprobarTirada (fila, columna, ficha)) 
 			return true;
@@ -111,8 +106,7 @@ public class Tablero {
 		int fila;
 		boolean seguir = true;
 		for (fila=0; fila<FILAS && seguir; fila ++) {
-			//seguir = this.tableroArr[fila][columna].estaOcupada();
-			seguir = this.tableroArr[fila][columna] != null;
+			seguir = this.tableroArr[fila][columna].estaOcupada();
 			}
 		return fila;
 		}
@@ -131,22 +125,20 @@ public class Tablero {
 		Ficha color;
 		
 		for (int columna=0; columna<COLUMNAS; columna ++) {
-			if (tableroArr[fila][columna]!=null) {
+			if (tableroArr[fila][columna].getFicha()!=null) {
 				if (tableroArr[fila][columna].estaOcupada()) {
-					if (tableroArr[fila][columna].estaOcupada()) {
-						color = tableroArr[fila][columna].getFicha();
-						if (color == Ficha.AZUL) {
-							contadorVerdeH = 0;
-							contadorAzulH ++;
-						} else {
-							contadorAzulH = 0;
-							contadorVerdeH ++;
-						}
-						
-						if (objetivoAlcanzado(contadorAzulH) || objetivoAlcanzado(contadorVerdeH)) {
-							return true;
-						}			
+					color = tableroArr[fila][columna].getFicha();
+					if (color == Ficha.AZUL) {
+						contadorVerdeH = 0;
+						contadorAzulH ++;
+					} else {
+						contadorAzulH = 0;
+						contadorVerdeH ++;
 					}
+					
+					if (objetivoAlcanzado(contadorAzulH) || objetivoAlcanzado(contadorVerdeH)) {
+						return true;
+					}			
 				}
 			}
 		}
@@ -159,7 +151,7 @@ public class Tablero {
 		Ficha color;
 		
 		for (int fila=0; fila<FILAS; fila ++) {
-			if (tableroArr[fila][columna]!=null) {
+			if (tableroArr[fila][columna].getFicha()!=null) {
 				if (tableroArr[fila][columna].estaOcupada()) {
 					color = tableroArr[fila][columna].getFicha();
 					if (color == Ficha.AZUL) {
@@ -186,7 +178,7 @@ public class Tablero {
 		int contador = 0;
 		int colCnt = colInicial;
 		for (int filaCnt = filaInicial; filaCnt<FILAS; filaCnt++) {
-			if (tableroArr[filaCnt][colCnt]!=null) {
+			if (tableroArr[filaCnt][colCnt].getFicha()!=null) {
 				if(ficha == tableroArr[filaCnt][colCnt].getFicha()) {
 					contador++;
 				} else {
@@ -212,7 +204,7 @@ public class Tablero {
 		int contador = 0;
 		int colCnt = colInicial;
 		for (int filaCnt = filaInicial; filaCnt<FILAS; filaCnt++) {
-			if (tableroArr[filaCnt][colCnt]!=null) {
+			if (tableroArr[filaCnt][colCnt].getFicha()!=null) {
 				if(ficha == tableroArr[filaCnt][colCnt].getFicha()) {
 					contador++;
 				} else {
@@ -247,29 +239,37 @@ public class Tablero {
 	}
 
 	public String toString() {
-		StringBuilder strTablero = new StringBuilder(); 
+		
+		//"|       |\n|       |\n|       |\n|       |\n|       |\n|       |\n -------\n"
+		
+		StringBuilder strTablero = new StringBuilder();
 		StringBuilder[] strFilas = new StringBuilder[FILAS];
+		for (int fila = 0; fila <FILAS; fila++) {
+			strFilas[fila] = new StringBuilder("");
+		}
+		
 		StringBuilder strFilaBase = new StringBuilder();
 		
-		for (int fila = FILAS; fila >=0; fila--) {
-
-			for (int columna = 0; columna >COLUMNAS; columna++) {
+		for (int fila = FILAS-1; fila >=0; fila--) {
+			strFilas[fila].append("|");
+			for (int columna = 0; columna < COLUMNAS; columna++) {
 				strFilas[fila].append(tableroArr[fila][columna].toString());
 			}
-			strFilas[fila].append("|"+ strFilas.toString() + "|");
+			strFilas[fila].append("|");
 			strFilas[fila].append("\n");
 			
 			strTablero.append(strFilas[fila]);
 		}
 		
-		
-		for (int columna = 0; columna >COLUMNAS; columna++) {
+		strFilaBase.append(" ");
+		for (int columna = 0; columna <COLUMNAS; columna++) {
 			strFilaBase.append("-");
 		}
-		strFilaBase.append( " " + strFilaBase.toString() + " ");
 		strFilaBase.append("\n");
 		
 		strTablero.append(strFilaBase.toString());
+		
+		System.out.print(strTablero.toString());
 		
 		return strTablero.toString();
 	}
