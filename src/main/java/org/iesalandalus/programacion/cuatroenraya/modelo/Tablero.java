@@ -4,6 +4,8 @@ import javax.naming.OperationNotSupportedException;
 
 public class Tablero {
 
+	//arreglado
+	
 	public static final int FILAS = 6;
 	public static final int COLUMNAS = 7;
 	public static final int FICHAS_IGUALES_CONSECUTIVAS_NECESARIAS = 4;
