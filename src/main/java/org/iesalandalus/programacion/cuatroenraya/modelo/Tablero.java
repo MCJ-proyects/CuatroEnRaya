@@ -3,8 +3,6 @@ package org.iesalandalus.programacion.cuatroenraya.modelo;
 import javax.naming.OperationNotSupportedException;
 
 public class Tablero {
-
-	//arreglado
 	
 	public static final int FILAS = 6;
 	public static final int COLUMNAS = 7;
